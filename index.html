@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>避けて！ロケット！</title>
-    <!-- Font Awesome (アイコンフォント) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts (フォント) -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap">
     <style>
         :root {
@@ -95,10 +93,14 @@
             left: 1rem;
             gap: 1rem;
         }
-
+        
         .right-ui {
-            right: 1rem;
+            top: auto;
+            transform: none;
+            bottom: 2rem;
+            right: 2rem;
         }
+
 
         .ui-element {
             padding: 0.5rem 1rem;
@@ -110,7 +112,7 @@
             gap: 0.5rem;
             font-size: 1.2rem;
             transition: opacity 0.5s ease-in-out;
-            pointer-events: auto; /* ボタンにポインターイベントを有効化 */
+            pointer-events: auto;
         }
         #pause-button {
             background-color: rgba(216, 216, 216, 0.5);
@@ -145,7 +147,7 @@
             overflow: hidden;
             transition: transform 0.1s ease-in-out;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-            pointer-events: auto; /* ボタンにポインターイベントを有効化 */
+            pointer-events: auto;
         }
         
         .skill-button:active {
@@ -333,7 +335,6 @@
             transform: translateX(26px);
         }
 
-        /* タイトル画面のUI */
         #title-screen {
             position: absolute;
             top: 0;
@@ -342,9 +343,9 @@
             height: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: center; /* 垂直方向中央揃え */
-            align-items: center;     /* 水平方向中央揃え */
-            gap: 1.5rem;               /* 要素間の隙間を均一に設定 */
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
             pointer-events: auto;
             opacity: 1;
             transition: opacity 1s ease-in-out;
@@ -359,7 +360,7 @@
         #game-title {
             font-size: 3rem;
             text-align: center;
-            margin: 0; /* 上下のマージンをリセット */
+            margin: 0;
         }
 
         #player-icon-title {
@@ -376,7 +377,7 @@
 
         #tap-to-screen {
             font-size: 1.5rem;
-            margin: 0; /* 上下のマージンをリセット */
+            margin: 0;
         }
 
         #high-scores {
@@ -435,7 +436,6 @@
             margin: 0.5rem 0;
         }
 
-        /* ↓↓↓ このスタイル定義を追加 ↓↓↓ */
         #game-over-modal .tips-text {
             font-size: 1.0rem;
             color: rgb(255, 248, 152);
@@ -445,7 +445,6 @@
             font-weight: normal;
             line-height: 1.4;
         }
-        /* ↑↑↑ このスタイル定義を追加 ↑↑↑ */
 
         .skill-usage-container {
             display: flex;
@@ -489,7 +488,6 @@
     <div class="game-container">
         <canvas id="gameCanvas"></canvas>
 
-        <!-- タイトル画面 -->
         <div id="title-screen">
             <h1 id="game-title">避けて！ロケット！</h1>
             <i class="fas fa-rocket" id="player-icon-title"></i>
@@ -503,7 +501,6 @@
             <i class="fas fa-cog" id="settings-button-title"></i>
         </div>
 
-        <!-- メインゲームUI -->
         <div id="game-ui" class="ui-container" style="opacity: 0; pointer-events: none;">
             <div class="top-ui">
                 <div class="ui-element time">
@@ -511,7 +508,6 @@
                     <span id="game-time">00:00:00</span>
                 </div>
                 <div class="ui-element lives" id="lives-display">
-                    <!-- 残機アイコンがここに追加される -->
                 </div>
             </div>
             <div class="bottom-ui">
@@ -543,7 +539,6 @@
             </div>
         </div>
 
-        <!-- 設定モーダル -->
         <div id="settings-modal-overlay" class="modal-overlay">
             <div id="settings-modal" class="modal-content">
                 <h2 class="modal-title">設定</h2>
@@ -567,19 +562,16 @@
             </div>
         </div>
 
-        <!-- 一時停止モーダル -->
         <div id="pause-modal-overlay" class="modal-overlay">
             <div id="pause-modal" class="modal-content">
                 <h2 class="modal-title">一時停止</h2>
                 <div class="modal-buttons">
                     <button class="modal-button" id="resume-button">再開</button>
                     <button class="modal-button" id="game-end-button">ゲーム終了</button>
-                    <!-- 設定のトグルもここに追加 -->
                 </div>
             </div>
         </div>
         
-        <!-- ゲームオーバーモーダル -->
         <div id="game-over-modal-overlay" class="modal-overlay">
             <div id="game-over-modal" class="modal-content">
                 <h2>ゲームオーバー</h2>
@@ -594,7 +586,6 @@
             </div>
         </div>
         
-        <!-- メッセージボックス (alertの代替) -->
         <div id="message-box-overlay">
             <div id="message-box">
                 <p id="message-box-text"></p>
@@ -621,8 +612,7 @@
         const closeSettingsButton = document.getElementById('close-settings-button');
         const pauseButton = document.getElementById('pause-button');
         const pauseModalOverlay = document.getElementById('pause-modal-overlay');
-        const resumeButton = document.getElementById('resume-button');
-        const gameEndButton = document.getElementById('game-end-button');
+        // resumeButtonとgameEndButtonは動的に生成されるため、ここでは取得しない
         const gameOverModalOverlay = document.getElementById('game-over-modal-overlay');
         const gameOverReturnButton = document.getElementById('game-over-return-button');
         const seToggle = document.getElementById('se-toggle');
@@ -634,7 +624,6 @@
         const gameOverTimeDisplay = document.getElementById('game-over-time');
         const gameOverScoreDisplay = document.getElementById('game-over-score');
         const gameOverSkillUsageDisplay = document.getElementById('game-over-skill-usage');
-        // ↓↓↓ この行を追加 ↓↓↓
         const gameOverTipsDisplay = document.getElementById('game-over-tips');
 
         const skillEraserBtn = document.getElementById('skill-eraser');
@@ -649,246 +638,172 @@
             GAME_OVER: 'gameOver'
         };
         
-        const initialPlayerRadius = 10; // プレイヤーの初期半径を定義
+        const initialPlayerRadius = 10;
 
-        // ↓↓↓ この配列定義を追加 ↓↓↓
         const gameTips = [
-            "画面をタッチまたはクリックすると、マーカーを設置できます。",
-            "マーカーは3秒で自動的に消滅します。",
-            "ロケットは、マーカーを結んだ中心点に移動します。",
-            "画面の横幅が広いほど、ロケットやシャボンは速くなります。",
-            "スキルを使うと、スコアが増えます。",
-            "SpeedBoost：マーカーを２つ以上設置するとチャージ開始します。",
-            "AllEraser：マーカーを１つ以上設置するとチャージ開始します。",
-            "DokkanBomb：マーカーを３つ以上設置するとチャージ開始します。",
-            "スマホなら縦画面、横画面でゲームの感触が変わります。",
-            "PCなら、ウィンドウのアスペクト比を変えてみるとゲームの感触が変わります。",
-            "シャボンは、たまに曲がったりします。",
-            "マーカーは3つまで設置できます。設置するほどスコアが伸びます。",
-            "マーカーが多いほど、強力なスキルをチャージできます。",
-            "SpeedBoost：一定時間ロケットが加速します。",
-            "AllEraser：設置したマーカーを全て消去します。",
-            "DokkanBomb：画面内のシャボンを全て消去します。",
-            "長時間プレイすると、より多くのシャボンが出現します。",
-            "5分経過するごとに残機が1つ回復します。",
-            "PCではA, S, Dキーでスキルを発動できます。"
+            "画面をタッチまたはクリックすると、マーカーを設置できます。", "マーカーは3秒で自動的に消滅します。", "ロケットは、マーカーを結んだ中心点に移動します。",
+            "画面の横幅が広いほど、ロケットやシャボンは速くなります。", "スキルを使うと、スコアが増えます。", "SpeedBoost：マーカーを２つ以上設置するとチャージ開始します。",
+            "AllEraser：マーカーを１つ以上設置するとチャージ開始します。", "DokkanBomb：マーカーを３つ以上設置するとチャージ開始します。", "スマホなら縦画面、横画面でゲームの感触が変わります。",
+            "PCなら、ウィンドウのアスペクト比を変えてみるとゲームの感触が変わります。", "シャボンは、たまに曲がったりします。", "マーカーは3つまで設置できます。設置するほどスコアが伸びます。",
+            "マーカーが多いほど、強力なスキルをチャージできます。", "SpeedBoost：一定時間ロケットが加速します。", "AllEraser：設置したマーカーを全て消去します。",
+            "DokkanBomb：画面内のシャボンを全て消去します。", "長時間プレイすると、より多くのシャボンが出現します。", "5分経過するごとに残機が1つ回復します。", "PCではA, S, Dキーでスキルを発動できます。",
+            "45秒に一度、ステージにパワースポットが出現します。", "赤いパワースポットはシャボンを全消去！", "黄色いパワースポットはスコアを1.3倍！", "緑のパワースポットは残機が1回復！"
         ];
 
         // ゲーム変数の初期化
         let gameState = GAME_STATE.TITLE;
         let lastTime = 0;
         let deltaTime = 0;
+        let totalElapsedTime = 0;
         let scaleFactor;
         
         let player = {
-            x: 0, y: 0,
-            radius: initialPlayerRadius, // 初期半径を設定
-            speed: 0,
-            isInvincible: false,
-            invincibleTimer: 0,
-            boostTimer: 0,
-            isBoosting: false,
-            rotation: 0
+            x: 0, y: 0, radius: initialPlayerRadius, speed: 0,
+            isInvincible: false, invincibleTimer: 0, boostTimer: 0,
+            isBoosting: false, rotation: 0
         };
 
         let markers = [];
         let rocks = [];
+        let powerSpots = [];
         let highScores = [];
         let score = 0;
         let lives = 3;
         let gameStartTime = 0;
         let lifeRecoveryTime = 0;
+        let lastRockSpawnTime = 0;
+        let lastPowerSpotSpawnTime = 0;
         
-        // スキルシステム
         const skillData = {
             eraser: { cost: 100, currentCost: 100, charge: 0, chargeCondition: 1, useCount: 0 },
             boost: { cost: 130, currentCost: 130, charge: 0, chargeCondition: 2, useCount: 0 },
             bomb: { cost: 150, currentCost: 150, charge: 0, chargeCondition: 3, useCount: 0 }
         };
 
-        // サウンド設定
         let audioContext;
         let isSEEnabled = true;
         let isBGMEnabled = true;
         let bgmSource;
-        const bgmSound = new Audio(); // BGM用のAudioオブジェクト
+        const bgmSound = new Audio();
 
-        // CSS変数の値を取得
         const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--secondary-color').trim();
 
-        // メッセージボックス
         function showMessageBox(text, callback = null) {
             const overlay = document.getElementById('message-box-overlay');
             const messageText = document.getElementById('message-box-text');
             const okButton = document.getElementById('message-box-ok');
-            
             messageText.textContent = text;
             overlay.style.display = 'flex';
-            
             okButton.onclick = () => {
                 overlay.style.display = 'none';
                 if (callback) callback();
             };
         }
 
-        // Web Audio API を使ったシンプルなSE生成関数
         function playSE(frequency, duration, type = 'sine') {
             if (!isSEEnabled) return;
-
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            }
-
+            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
-            
             oscillator.type = type;
             oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
             gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration / 1000);
-            
             oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
-            
             oscillator.start();
             oscillator.stop(audioContext.currentTime + duration / 1000);
         }
 
-        // 難易度調整用
         const difficultySettings = {
-            initial: {
-                rockSpawnRate: 2000,
-                rockChances: {
-                    size: { normal: 80, big: 15, superBig: 5 },
-                    speed: { normal: 50, slow: 20, fast: 20, verySlow: 10 },
-                    moveType: { normal: 90, chase: 5, superChase: 1, lCurve: 2, rCurve: 2 }
-                }
-            },
-            min1: {
-                rockSpawnRate: 1500,
-                rockChances: {
-                    size: { normal: 70, big: 20, superBig: 10 },
-                    speed: { normal: 40, slow: 15, fast: 30, verySlow: 15 },
-                    moveType: { normal: 80, chase: 10, superChase: 2, lCurve: 4, rCurve: 4 }
-                }
-            },
-            min5: {
-                rockSpawnRate: 1000,
-                rockChances: {
-                    size: { normal: 60, big: 25, superBig: 15 },
-                    speed: { normal: 30, slow: 10, fast: 40, verySlow: 20 },
-                    moveType: { normal: 70, chase: 15, superChase: 5, lCurve: 5, rCurve: 5 }
-                }
-            },
-            min10: {
-                rockSpawnRate: 750,
-                rockChances: {
-                    size: { normal: 50, big: 30, superBig: 20 },
-                    speed: { normal: 20, slow: 5, fast: 50, verySlow: 25 },
-                    moveType: { normal: 60, chase: 20, superChase: 10, lCurve: 5, rCurve: 5 }
-                }
-            }
+            initial: { rockSpawnRate: 2000, rockChances: { size: { normal: 80, big: 15, superBig: 5 }, speed: { normal: 50, slow: 20, fast: 20, verySlow: 10 }, moveType: { normal: 90, chase: 5, superChase: 1, lCurve: 2, rCurve: 2 }}},
+            min1: { rockSpawnRate: 1500, rockChances: { size: { normal: 70, big: 20, superBig: 10 }, speed: { normal: 40, slow: 15, fast: 30, verySlow: 15 }, moveType: { normal: 80, chase: 10, superChase: 2, lCurve: 4, rCurve: 4 }}},
+            min5: { rockSpawnRate: 1000, rockChances: { size: { normal: 60, big: 25, superBig: 15 }, speed: { normal: 30, slow: 10, fast: 40, verySlow: 20 }, moveType: { normal: 70, chase: 15, superChase: 5, lCurve: 5, rCurve: 5 }}},
+            min10: { rockSpawnRate: 750, rockChances: { size: { normal: 50, big: 30, superBig: 20 }, speed: { normal: 20, slow: 5, fast: 50, verySlow: 25 }, moveType: { normal: 60, chase: 20, superChase: 10, lCurve: 5, rCurve: 5 }}}
         };
         let currentDifficulty = difficultySettings.initial;
-        let lastRockSpawnTime = 0;
 
-        // BGM用のシンプルなノイズ生成関数
         function createBGM() {
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (bgmSource) {
-                bgmSource.stop();
-            }
-
-            const bufferSize = audioContext.sampleRate * 5; // 5秒のバッファ
+            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            if (bgmSource) bgmSource.stop();
+            const bufferSize = audioContext.sampleRate * 5;
             const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
             const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {
-                // シンプルなホワイトノイズを生成
-                data[i] = (Math.random() * 2 - 1) * 0.1;
-            }
-
+            for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * 0.1;
             bgmSource = audioContext.createBufferSource();
             bgmSource.buffer = buffer;
             bgmSource.loop = true;
             bgmSource.connect(audioContext.destination);
-
-            if (isBGMEnabled) {
-                bgmSource.start();
-            }
+            if (isBGMEnabled) bgmSource.start();
         }
         
-        // ウィンドウサイズ変更時にキャンバスをリサイズ
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            scaleFactor = Math.min(canvas.width, canvas.height) / 800; // 基準サイズ
-            
-            player.speed = (canvas.width / 6) / 1000; // ピクセル/ミリ秒
-            
-            // プレイヤー位置を中央に調整
+            scaleFactor = Math.min(canvas.width, canvas.height) / 800;
+            player.speed = (canvas.width / 6) / 1000;
             player.x = canvas.width / 2;
             player.y = canvas.height / 2;
         }
+        
+        // <<< 修正点2: タイトル画面のクリック処理を分離 >>>
+        const titleScreenClickHandler = (event) => {
+            // クリックされたのが設定ボタンやその中身(iタグ)でなければゲーム開始
+            if (event.target.closest('#settings-button-title')) {
+                return;
+            }
+            startGame();
+        };
 
-        // 初期化処理
         function init() {
             resizeCanvas();
             loadHighScores();
             createBGM();
             window.addEventListener('resize', resizeCanvas);
             
-            titleScreen.addEventListener('click', handleTitleScreenTap);
+            titleScreen.addEventListener('click', titleScreenClickHandler); // 修正
 
             settingsButtonTitle.addEventListener('click', (event) => {
-                event.stopPropagation();
+                event.stopPropagation(); // 念のため残す
                 showSettingsModal();
             });
+
             pauseButton.addEventListener('click', showPauseModal);
             closeSettingsButton.addEventListener('click', closeSettingsModal);
-            
             gameOverReturnButton.addEventListener('click', showTitleScreen);
-            
             seToggle.addEventListener('change', () => { isSEEnabled = seToggle.checked; playSE(440, 100, 'square'); });
             bgmToggle.addEventListener('change', () => {
                 isBGMEnabled = bgmToggle.checked;
-                if (isBGMEnabled) {
-                    if (bgmSource) bgmSource.start();
-                } else {
-                    if (bgmSource) bgmSource.stop();
-                }
+                if (isBGMEnabled) { if (bgmSource) bgmSource.start(); } else { if (bgmSource) bgmSource.stop(); }
             });
-
             skillEraserBtn.addEventListener('click', () => useSkill('eraser'));
             skillBoostBtn.addEventListener('click', () => useSkill('boost'));
             skillBombBtn.addEventListener('click', () => useSkill('bomb'));
-
             window.addEventListener('keydown', (event) => {
                 if (gameState !== GAME_STATE.PLAYING) return;
-
                 switch (event.key.toLowerCase()) {
-                    case 'a':
-                        if (!skillEraserBtn.disabled) useSkill('eraser');
-                        break;
-                    case 's':
-                        if (!skillBoostBtn.disabled) useSkill('boost');
-                        break;
-                    case 'd':
-                        if (!skillBombBtn.disabled) useSkill('bomb');
-                        break;
+                    case 'a': if (!skillEraserBtn.disabled) useSkill('eraser'); break;
+                    case 's': if (!skillBoostBtn.disabled) useSkill('boost'); break;
+                    case 'd': if (!skillBombBtn.disabled) useSkill('bomb'); break;
                 }
             });
+            document.addEventListener('visibilitychange', handleVisibilityChange);
         }
 
-        // タイトル画面のタップ/クリックハンドラー
-        function handleTitleScreenTap() {
-            startGame();
-            canvas.addEventListener('mousedown', handleGameCanvasTap);
-            canvas.addEventListener('touchstart', handleGameCanvasTap);
+        function handleVisibilityChange() {
+            if (document.hidden) {
+                if (gameState === GAME_STATE.PLAYING) {
+                    gameState = GAME_STATE.PAUSED;
+                    lastTime = 0;
+                }
+            } else {
+                if (gameState === GAME_STATE.PAUSED && !pauseModalOverlay.classList.contains('visible')) {
+                    gameState = GAME_STATE.PLAYING;
+                    lastTime = performance.now();
+                }
+            }
         }
 
-        // ゲーム中のキャンバスタップ/クリックハンドラー
         function handleGameCanvasTap(event) {
             event.preventDefault();
             if (gameState === GAME_STATE.PLAYING) {
@@ -901,7 +816,6 @@
                     x = event.clientX - rect.left;
                     y = event.clientY - rect.top;
                 }
-                
                 const target = event.target;
                 if (target.id === 'gameCanvas' || target.closest('#game-ui') === null) {
                     if (markers.length < 3) {
@@ -913,10 +827,11 @@
             }
         }
         
-        // ゲーム開始
         function startGame() {
-            titleScreen.removeEventListener('click', handleTitleScreenTap);
-
+            titleScreen.removeEventListener('click', titleScreenClickHandler); // 修正
+            canvas.addEventListener('mousedown', handleGameCanvasTap);
+            canvas.addEventListener('touchstart', handleGameCanvasTap);
+            
             titleScreen.classList.add('fade-out');
             setTimeout(() => {
                 titleScreen.style.display = 'none';
@@ -924,106 +839,67 @@
             }, 1000);
             
             gameState = GAME_STATE.PLAYING;
-            
             gameStartTime = performance.now();
             lifeRecoveryTime = gameStartTime;
             lastRockSpawnTime = gameStartTime;
+            lastPowerSpotSpawnTime = gameStartTime;
             lastTime = gameStartTime;
+            totalElapsedTime = 0;
             
             playSE(880, 200, 'sine');
         }
 
-        // ゲームを一時停止
         function showPauseModal() {
             if (gameState === GAME_STATE.PLAYING) {
                 gameState = GAME_STATE.PAUSED;
                 pauseModalOverlay.classList.add('visible');
-                
                 lastTime = 0; 
-                
                 const pauseModalContent = document.getElementById('pause-modal');
-                
                 pauseModalContent.innerHTML = `
                     <h2 class="modal-title">一時停止</h2>
-                    <div class="toggle-switch-container">
-                        <label>SE</label>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="se-toggle-pause">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    <div class="toggle-switch-container">
-                        <label>BGM</label>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="bgm-toggle-pause">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    <div class="modal-buttons">
-                        <button class="modal-button" id="resume-button-temp">再開</button>
-                        <button class="modal-button" id="game-end-button-temp">ゲーム終了</button>
-                    </div>
-                `;
-                
+                    <div class="toggle-switch-container"><label>SE</label><label class="toggle-switch"><input type="checkbox" id="se-toggle-pause"><span class="slider"></span></label></div>
+                    <div class="toggle-switch-container"><label>BGM</label><label class="toggle-switch"><input type="checkbox" id="bgm-toggle-pause"><span class="slider"></span></label></div>
+                    <div class="modal-buttons"><button class="modal-button" id="resume-button-temp">再開</button><button class="modal-button" id="game-end-button-temp">ゲーム終了</button></div>`;
                 const seTogglePause = document.getElementById('se-toggle-pause');
                 const bgmTogglePause = document.getElementById('bgm-toggle-pause');
-                
                 seTogglePause.checked = isSEEnabled;
                 bgmTogglePause.checked = isBGMEnabled;
-
                 seTogglePause.addEventListener('change', () => { 
-                    isSEEnabled = seTogglePause.checked;
-                    seToggle.checked = isSEEnabled;
-                    playSE(440, 100, 'square');
+                    isSEEnabled = seTogglePause.checked; seToggle.checked = isSEEnabled; playSE(440, 100, 'square');
                 });
                 bgmTogglePause.addEventListener('change', () => { 
-                    isBGMEnabled = bgmTogglePause.checked;
-                    bgmToggle.checked = isBGMEnabled;
-                    if (isBGMEnabled) {
-                        if (bgmSource) bgmSource.start();
-                    } else {
-                        if (bgmSource) bgmSource.stop();
-                    }
+                    isBGMEnabled = bgmTogglePause.checked; bgmToggle.checked = isBGMEnabled;
+                    if (isBGMEnabled) { if (bgmSource) bgmSource.start(); } else { if (bgmSource) bgmSource.stop(); }
                 });
-
                 document.getElementById('resume-button-temp').addEventListener('click', resumeGame);
                 document.getElementById('game-end-button-temp').addEventListener('click', showTitleScreen);
                 playSE(440, 100, 'square');
             }
         }
         
-        // ゲーム再開
         function resumeGame() {
             gameState = GAME_STATE.PLAYING;
             pauseModalOverlay.classList.remove('visible');
-            
             lastTime = performance.now();
-            
             playSE(440, 100, 'square');
         }
 
-        // 設定モーダル表示
         function showSettingsModal() {
             settingsModalOverlay.classList.add('visible');
             playSE(440, 100, 'square');
         }
 
-        // 設定モーダル非表示
         function closeSettingsModal() {
             settingsModalOverlay.classList.remove('visible');
             playSE(440, 100, 'square');
         }
         
-        // ゲームオーバー処理
         function gameOver() {
             playSE(110, 500, 'sawtooth');
-            
             gameState = GAME_STATE.GAME_OVER;
-            
             const startRadius = player.radius;
             let animationTimer = 0;
             const animationDuration = 1000;
-            
             function animateGameOver() {
                 const elapsed = performance.now() - animationTimer;
                 if (elapsed < animationDuration) {
@@ -1036,179 +912,95 @@
                     setTimeout(() => {
                         gameUI.style.pointerEvents = 'none';
                         gameOverModalOverlay.classList.add('visible');
-                        
-                        const gameTime = (performance.now() - gameStartTime) / 1000;
-                        gameOverTimeDisplay.textContent = formatTime(gameTime);
+                        gameOverTimeDisplay.textContent = formatTime(totalElapsedTime / 1000);
                         gameOverScoreDisplay.textContent = Math.floor(score).toString();
-                        
-                        // ↓↓↓ Tips表示処理を追加 ↓↓↓
                         const randomIndex = Math.floor(Math.random() * gameTips.length);
                         gameOverTipsDisplay.textContent = `Tips: ${gameTips[randomIndex]}`;
-                        
                         gameOverSkillUsageDisplay.innerHTML = '';
-                        if (skillData.eraser.useCount > 0) {
-                            gameOverSkillUsageDisplay.innerHTML += `
-                                <div class="skill-usage-item">
-                                    <i class="fas fa-eraser skill-usage-icon" style="color:${secondaryColor};"></i>
-                                    <span>${skillData.eraser.useCount}</span>
-                                </div>
-                            `;
-                        }
-                        if (skillData.boost.useCount > 0) {
-                            gameOverSkillUsageDisplay.innerHTML += `
-                                <div class="skill-usage-item">
-                                    <i class="fas fa-fire-extinguisher skill-usage-icon" style="color:${secondaryColor};"></i>
-                                    <span>${skillData.boost.useCount}</span>
-                                </div>
-                            `;
-                        }
-                        if (skillData.bomb.useCount > 0) {
-                            gameOverSkillUsageDisplay.innerHTML += `
-                                <div class="skill-usage-item">
-                                    <i class="fas fa-bomb skill-usage-icon" style="color:${secondaryColor};"></i>
-                                    <span>${skillData.bomb.useCount}</span>
-                                </div>
-                            `;
-                        }
-                        
+                        if (skillData.eraser.useCount > 0) gameOverSkillUsageDisplay.innerHTML += `<div class="skill-usage-item"><i class="fas fa-eraser skill-usage-icon" style="color:${secondaryColor};"></i><span>${skillData.eraser.useCount}</span></div>`;
+                        if (skillData.boost.useCount > 0) gameOverSkillUsageDisplay.innerHTML += `<div class="skill-usage-item"><i class="fas fa-fire-extinguisher skill-usage-icon" style="color:${secondaryColor};"></i><span>${skillData.boost.useCount}</span></div>`;
+                        if (skillData.bomb.useCount > 0) gameOverSkillUsageDisplay.innerHTML += `<div class="skill-usage-item"><i class="fas fa-bomb skill-usage-icon" style="color:${secondaryColor};"></i><span>${skillData.bomb.useCount}</span></div>`;
                         saveHighScores();
                         loadHighScores();
-                        
                     }, 500);
                 }
             }
-            
             animationTimer = performance.now();
             animateGameOver();
         }
 
-        // タイトル画面へ戻る
         function showTitleScreen() {
-            score = 0;
-            lives = 3;
-            rocks = [];
-            markers = [];
-            skillData.eraser.charge = 0;
-            skillData.eraser.currentCost = skillData.eraser.cost;
-            skillData.eraser.useCount = 0;
-            skillData.boost.charge = 0;
-            skillData.boost.currentCost = skillData.boost.cost;
-            skillData.boost.useCount = 0;
-            skillData.bomb.charge = 0;
-            skillData.bomb.currentCost = skillData.bomb.cost;
-            skillData.bomb.useCount = 0;
-            player.x = canvas.width / 2;
-            player.y = canvas.height / 2;
-            player.isInvincible = false;
-            player.isBoosting = false;
-            player.boostTimer = 0;
+            score = 0; lives = 3; rocks = []; markers = []; powerSpots = [];
+            skillData.eraser.charge = 0; skillData.eraser.currentCost = skillData.eraser.cost; skillData.eraser.useCount = 0;
+            skillData.boost.charge = 0; skillData.boost.currentCost = skillData.boost.cost; skillData.boost.useCount = 0;
+            skillData.bomb.charge = 0; skillData.bomb.currentCost = skillData.bomb.cost; skillData.bomb.useCount = 0;
+            player.x = canvas.width / 2; player.y = canvas.height / 2;
+            player.isInvincible = false; player.isBoosting = false; player.boostTimer = 0;
             player.radius = initialPlayerRadius;
-            
             gameState = GAME_STATE.TITLE;
             titleScreen.classList.remove('fade-out');
             titleScreen.style.display = 'flex';
-            
             canvas.removeEventListener('mousedown', handleGameCanvasTap);
             canvas.removeEventListener('touchstart', handleGameCanvasTap);
-            titleScreen.addEventListener('click', handleTitleScreenTap);
-
+            titleScreen.addEventListener('click', titleScreenClickHandler); // 修正
             settingsModalOverlay.classList.remove('visible');
             pauseModalOverlay.classList.remove('visible');
             gameOverModalOverlay.classList.remove('visible');
-            
             gameUI.style.opacity = '0';
             gameUI.style.pointerEvents = 'none';
-
-            // ↓↓↓ Tipsをクリアする処理を追加 ↓↓↓
             gameOverTipsDisplay.textContent = "";
         }
 
-        // プレイヤーの移動先座標を計算
         function calculatePlayerTarget() {
-            if (markers.length === 0) {
-                return null;
-            } else if (markers.length === 1) {
-                return { x: markers[0].x, y: markers[0].y };
-            } else if (markers.length === 2) {
-                return {
-                    x: (markers[0].x + markers[1].x) / 2,
-                    y: (markers[0].y + markers[1].y) / 2
-                };
-            } else {
-                return {
-                    x: (markers[0].x + markers[1].x + markers[2].x) / 3,
-                    y: (markers[0].y + markers[1].y + markers[2].y) / 3
-                };
-            }
+            if (markers.length === 0) return null;
+            if (markers.length === 1) return { x: markers[0].x, y: markers[0].y };
+            if (markers.length === 2) return { x: (markers[0].x + markers[1].x) / 2, y: (markers[0].y + markers[1].y) / 2 };
+            return { x: (markers[0].x + markers[1].x + markers[2].x) / 3, y: (markers[0].y + markers[1].y + markers[2].y) / 3 };
         }
         
-        // プレイヤーの更新
         function updatePlayer() {
             const target = calculatePlayerTarget();
             if (target) {
-                const dx = target.x - player.x;
-                const dy = target.y - player.y;
+                const dx = target.x - player.x, dy = target.y - player.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-                
                 let currentSpeed = player.speed;
-                if (player.isBoosting) {
-                    currentSpeed *= 1.5;
-                }
-                
+                if (player.isBoosting) currentSpeed *= 1.5;
                 if (distance > 4) {
                     const ratio = (currentSpeed * deltaTime) / distance;
-                    player.x += dx * ratio;
-                    player.y += dy * ratio;
+                    player.x += dx * ratio; player.y += dy * ratio;
                     player.rotation = Math.atan2(dy, dx);
                 } else {
-                    player.x = target.x;
-                    player.y = target.y;
+                    player.x = target.x; player.y = target.y;
                 }
             }
         }
         
-        // 岩の生成
         function spawnRock() {
             const { size, speed, moveType } = getRandomRockChances(currentDifficulty.rockChances);
-            
             let rock = {
-                x: 0, y: 0,
-                radius: 60 * size.multiplier,
-                speed: player.speed * speed.multiplier,
-                moveType: moveType.type,
-                rotation: Math.random() * Math.PI * 2,
-                rotationSpeed: (Math.random() - 0.5) * 0.05,
-                angle: 0,
-                lastCorrection: performance.now()
+                x: 0, y: 0, radius: canvas.width * 0.05 * size.multiplier,
+                speed: player.speed * speed.multiplier, moveType: moveType.type,
+                rotation: Math.random() * Math.PI * 2, rotationSpeed: (Math.random() - 0.5) * 0.05,
+                angle: 0, lastCorrection: performance.now()
             };
-            
-            const edge = Math.floor(Math.random() * 4);
-            const spawnOffset = 50;
-            const bufferX = canvas.width + spawnOffset * 2;
-            const bufferY = canvas.height + spawnOffset * 2;
-            
+            const edge = Math.floor(Math.random() * 4), spawnOffset = 50;
+            const bufferX = canvas.width + spawnOffset * 2, bufferY = canvas.height + spawnOffset * 2;
             switch (edge) {
                 case 0: rock.x = Math.random() * bufferX - spawnOffset; rock.y = -spawnOffset; break;
                 case 1: rock.x = bufferX - spawnOffset; rock.y = Math.random() * bufferY - spawnOffset; break;
                 case 2: rock.x = Math.random() * bufferX - spawnOffset; rock.y = bufferY - spawnOffset; break;
                 case 3: rock.x = -spawnOffset; rock.y = Math.random() * bufferY - spawnOffset; break;
             }
-            
             let targetX, targetY;
             if (rock.moveType === 'chase' || rock.moveType === 'superChase') {
-                targetX = player.x;
-                targetY = player.y;
+                targetX = player.x; targetY = player.y;
             } else {
-                targetX = Math.random() * canvas.width;
-                targetY = Math.random() * canvas.height;
+                targetX = Math.random() * canvas.width; targetY = Math.random() * canvas.height;
             }
-            
             rock.angle = Math.atan2(targetY - rock.y, targetX - rock.x);
-            
             rocks.push(rock);
         }
 
-        // 岩のステータスを確率に基づいてランダムに取得
         function getRandomRockChances(chances) {
             const randomPick = (options) => {
                 const rand = Math.random() * 100;
@@ -1219,196 +1011,98 @@
                 }
                 return Object.keys(options)[0];
             };
-
-            const sizeType = randomPick(chances.size);
-            const speedType = randomPick(chances.speed);
-            const moveType = randomPick(chances.moveType);
-
+            const sizeType = randomPick(chances.size), speedType = randomPick(chances.speed), moveType = randomPick(chances.moveType);
             const sizeMap = { normal: { multiplier: 1 }, big: { multiplier: 1.5 }, superBig: { multiplier: 2 } };
             const speedMap = { normal: { multiplier: 0.8 }, slow: { multiplier: 0.7 * 0.8 }, fast: { multiplier: 1 }, verySlow: { multiplier: 0.5 * 0.8 } };
-            const moveTypeMap = { normal: { type: 'normal' }, chase: { type: 'chase', lastCorrection: 0 }, superChase: { type: 'superChase', lastCorrection: 0 }, lCurve: { type: 'lCurve' }, rCurve: { type: 'rCurve' } };
-            
-            return {
-                size: sizeMap[sizeType],
-                speed: speedMap[speedType],
-                moveType: moveTypeMap[moveType]
-            };
+            const moveTypeMap = { normal: { type: 'normal' }, chase: { type: 'chase' }, superChase: { type: 'superChase' }, lCurve: { type: 'lCurve' }, rCurve: { type: 'rCurve' } };
+            return { size: sizeMap[sizeType], speed: speedMap[speedType], moveType: moveTypeMap[moveType] };
         }
         
-        // 岩の更新
         function updateRocks() {
             const now = performance.now();
             rocks = rocks.filter(rock => {
-                if (rock.moveType === 'chase') {
-                    if (now - rock.lastCorrection > 700) {
+                const angleCorrection = (correctionRate, threshold) => {
+                    if (now - rock.lastCorrection > threshold) {
                         const targetAngle = Math.atan2(player.y - rock.y, player.x - rock.x);
                         let diff = targetAngle - rock.angle;
-                        if (diff > Math.PI) diff -= Math.PI * 2;
-                        if (diff < -Math.PI) diff += Math.PI * 2;
-                        const correction = Math.sign(diff) * Math.min(Math.abs(diff), 4 * Math.PI / 180);
-                        rock.angle += correction;
+                        if (diff > Math.PI) diff -= Math.PI * 2; if (diff < -Math.PI) diff += Math.PI * 2;
+                        rock.angle += Math.sign(diff) * Math.min(Math.abs(diff), correctionRate);
                         rock.lastCorrection = now;
                     }
-                } else if (rock.moveType === 'superChase') {
-                    if (now - rock.lastCorrection > 350) {
-                        const targetAngle = Math.atan2(player.y - rock.y, player.x - rock.x);
-                        let diff = targetAngle - rock.angle;
-                        if (diff > Math.PI) diff -= Math.PI * 2;
-                        if (diff < -Math.PI) diff += Math.PI * 2;
-                        const correction = Math.sign(diff) * Math.min(Math.abs(diff), 4 * Math.PI / 180);
-                        rock.angle += correction;
-                        rock.lastCorrection = now;
-                    }
-                } else if (rock.moveType === 'lCurve') {
-                    if (now - rock.lastCorrection > 700) {
-                        rock.angle -= 15 * Math.PI / 180;
-                        rock.lastCorrection = now;
-                    }
-                } else if (rock.moveType === 'rCurve') {
-                    if (now - rock.lastCorrection > 700) {
-                        rock.angle += 15 * Math.PI / 180;
-                        rock.lastCorrection = now;
-                    }
-                }
+                };
+                if (rock.moveType === 'chase') angleCorrection(4 * Math.PI / 180, 700);
+                else if (rock.moveType === 'superChase') angleCorrection(4 * Math.PI / 180, 350);
+                else if (rock.moveType === 'lCurve' && now - rock.lastCorrection > 700) { rock.angle -= 15 * Math.PI / 180; rock.lastCorrection = now; }
+                else if (rock.moveType === 'rCurve' && now - rock.lastCorrection > 700) { rock.angle += 15 * Math.PI / 180; rock.lastCorrection = now; }
                 
                 rock.x += Math.cos(rock.angle) * rock.speed * deltaTime;
                 rock.y += Math.sin(rock.angle) * rock.speed * deltaTime;
                 rock.rotation += rock.rotationSpeed;
                 
-                const isOutside = rock.x < -100 || rock.x > canvas.width + 100 || rock.y < -100 || rock.y > canvas.height + 100;
-                return !isOutside;
+                return !(rock.x < -100 || rock.x > canvas.width + 100 || rock.y < -100 || rock.y > canvas.height + 100);
             });
         }
         
-        // 衝突判定（円と円）
         function checkCollision(obj1, obj2) {
-            const dx = obj1.x - obj2.x;
-            const dy = obj1.y - obj2.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            return distance < obj1.radius + obj2.radius;
+            const dx = obj1.x - obj2.x, dy = obj1.y - obj2.y;
+            return Math.sqrt(dx * dx + dy * dy) < obj1.radius + obj2.radius;
         }
 
-        // スキルの更新
         function updateSkills() {
-            const elapsedTime = deltaTime / 1000;
-            const numMarkers = markers.length;
-
-            if (numMarkers >= skillData.eraser.chargeCondition) {
-                skillData.eraser.charge = Math.min(skillData.eraser.currentCost, skillData.eraser.charge + 10 * elapsedTime);
-            }
-            if (numMarkers >= skillData.boost.chargeCondition) {
-                skillData.boost.charge = Math.min(skillData.boost.currentCost, skillData.boost.charge + 10 * elapsedTime);
-            }
-            if (numMarkers >= skillData.bomb.chargeCondition) {
-                skillData.bomb.charge = Math.min(skillData.bomb.currentCost, skillData.bomb.charge + 10 * elapsedTime);
-            }
-
-            updateSkillButton('eraser');
-            updateSkillButton('boost');
-            updateSkillButton('bomb');
-            
+            const elapsedTime = deltaTime / 1000, numMarkers = markers.length;
+            if (numMarkers >= skillData.eraser.chargeCondition) skillData.eraser.charge = Math.min(skillData.eraser.currentCost, skillData.eraser.charge + 10 * elapsedTime);
+            if (numMarkers >= skillData.boost.chargeCondition) skillData.boost.charge = Math.min(skillData.boost.currentCost, skillData.boost.charge + 10 * elapsedTime);
+            if (numMarkers >= skillData.bomb.chargeCondition) skillData.bomb.charge = Math.min(skillData.bomb.currentCost, skillData.bomb.charge + 10 * elapsedTime);
+            ['eraser', 'boost', 'bomb'].forEach(updateSkillButton);
             if (player.isBoosting) {
                 player.boostTimer -= deltaTime;
-                if (player.boostTimer <= 0) {
-                    player.isBoosting = false;
-                }
+                if (player.boostTimer <= 0) player.isBoosting = false;
             }
         }
         
-        // スキルボタンの表示更新
         function updateSkillButton(skillName) {
-            const btn = document.getElementById(`skill-${skillName}`);
-            const meter = btn.querySelector('.charge-meter');
-            const skill = skillData[skillName];
-            
+            const btn = document.getElementById(`skill-${skillName}`), meter = btn.querySelector('.charge-meter'), skill = skillData[skillName];
             const progress = skill.charge / skill.currentCost;
-            
-            if (progress >= 1) {
-                btn.classList.add('ready');
-                btn.disabled = false;
-            } else {
-                btn.classList.remove('ready');
-                btn.disabled = true;
-            }
-            
-            const angle = 360 * progress;
-            meter.style.background = `conic-gradient(${secondaryColor} ${angle}deg, transparent ${angle}deg)`;
+            if (progress >= 1) { btn.classList.add('ready'); btn.disabled = false; } else { btn.classList.remove('ready'); btn.disabled = true; }
+            meter.style.background = `conic-gradient(${secondaryColor} ${360 * progress}deg, transparent ${360 * progress}deg)`;
         }
 
-        // スキルの使用
         function useSkill(skillName) {
             const skill = skillData[skillName];
             if (skill.charge >= skill.currentCost) {
                 playSE(770, 100, 'square');
-                
-                skill.charge = 0;
-                skill.useCount++;
-                score += getSkillBonus(skillName);
-                
-                skill.currentCost += skill.cost;
-                
-                if (skillName === 'eraser') {
-                    markers = [];
-                } else if (skillName === 'boost') {
-                    player.isBoosting = true;
-                    player.boostTimer = 10000;
-                } else if (skillName === 'bomb') {
-                    rocks.forEach(rock => {
-                        rock.isVanishing = true;
-                        rock.vanishTimer = 1000;
-                        playSE(100, 50, 'triangle');
-                    });
-                    
-                    rocks = rocks.filter(rock => !rock.isVanishing);
-                }
+                skill.charge = 0; skill.useCount++; score += getSkillBonus(skillName); skill.currentCost += skill.cost;
+                if (skillName === 'eraser') markers = [];
+                else if (skillName === 'boost') { player.isBoosting = true; player.boostTimer = 10000; }
+                else if (skillName === 'bomb') { rocks = []; playSE(100, 50, 'triangle'); }
                 updateSkillButton(skillName);
             }
         }
         
         function getSkillBonus(skillName) {
-            switch(skillName) {
-                case 'eraser': return 56;
-                case 'boost': return 555;
-                case 'bomb': return 1000;
-                default: return 0;
-            }
+            return { eraser: 56, boost: 555, bomb: 1000 }[skillName] || 0;
         }
 
-        // UIの更新
         function updateUI() {
             currentScoreDisplay.textContent = Math.floor(score).toString();
-            
-            const elapsedSeconds = (performance.now() - gameStartTime) / 1000;
-            gameTimeDisplay.textContent = formatTime(elapsedSeconds);
-            
+            gameTimeDisplay.textContent = formatTime(totalElapsedTime / 1000);
             livesDisplay.innerHTML = '';
-            for (let i = 0; i < lives; i++) {
-                livesDisplay.innerHTML += `<i class="fas fa-rocket life-icon"></i>`;
-            }
-            
-            if (elapsedSeconds >= 360) {
-                currentDifficulty = difficultySettings.min10;
-            } else if (elapsedSeconds >= 180) {
-                currentDifficulty = difficultySettings.min5;
-            } else if (elapsedSeconds >= 60) {
-                currentDifficulty = difficultySettings.min1;
-            } else {
-                currentDifficulty = difficultySettings.initial;
-            }
-            
+            for (let i = 0; i < lives; i++) livesDisplay.innerHTML += `<i class="fas fa-rocket life-icon"></i>`;
+            const elapsed = totalElapsedTime / 1000;
+            if (elapsed >= 360) currentDifficulty = difficultySettings.min10;
+            else if (elapsed >= 180) currentDifficulty = difficultySettings.min5;
+            else if (elapsed >= 60) currentDifficulty = difficultySettings.min1;
+            else currentDifficulty = difficultySettings.initial;
             if (lives < 3 && performance.now() - lifeRecoveryTime > 300000) {
-                lives++;
-                lifeRecoveryTime = performance.now();
-                playSE(440, 300, 'sine');
+                lives++; lifeRecoveryTime = performance.now(); playSE(440, 300, 'sine');
             }
         }
         
-        // 描画処理
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
             drawRocks();
             drawMarkers();
+            drawPowerSpots();
             drawPlayer();
         }
         
@@ -1416,40 +1110,26 @@
             ctx.save();
             ctx.translate(player.x, player.y);
             ctx.rotate(player.rotation + Math.PI / 2);
-            
             if (player.isInvincible && Math.floor(performance.now() / 100) % 2 === 0) {
-                ctx.restore();
-                return;
+                ctx.restore(); return;
             }
-            
             const playerColor = player.isBoosting ? '#42a5f5' : secondaryColor;
             ctx.fillStyle = playerColor;
-            ctx.strokeStyle = playerColor;
-            
             ctx.beginPath();
             ctx.moveTo(0, -player.radius * 2);
             ctx.lineTo(-player.radius, player.radius * 2);
             ctx.lineTo(player.radius, player.radius * 2);
             ctx.closePath();
             ctx.fill();
-            
             ctx.restore();
         }
         
         function drawMarkers() {
             markers.forEach(marker => {
                 const progress = 1 - (marker.remainingTime / 3000);
-                
-                ctx.beginPath();
-                ctx.arc(marker.x, marker.y, 8 * scaleFactor, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 255, 255, ${1 - progress})`;
-                ctx.fill();
-                
-                ctx.beginPath();
-                ctx.arc(marker.x, marker.y, 12 * scaleFactor, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (1 - progress));
-                ctx.strokeStyle = `rgba(255, 255, 255, 0.5)`;
-                ctx.lineWidth = 2;
-                ctx.stroke();
+                ctx.beginPath(); ctx.arc(marker.x, marker.y, 8 * scaleFactor, 0, Math.PI * 2); ctx.fillStyle = `rgba(255, 255, 255, ${1 - progress})`; ctx.fill();
+                ctx.beginPath(); ctx.arc(marker.x, marker.y, 12 * scaleFactor, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (1 - progress));
+                ctx.strokeStyle = `rgba(255, 255, 255, 0.5)`; ctx.lineWidth = 2; ctx.stroke();
             });
         }
         
@@ -1458,84 +1138,112 @@
                 ctx.save();
                 ctx.translate(rock.x, rock.y);
                 ctx.rotate(rock.rotation);
-                
                 if (rock.isVanishing) {
                     const progress = (1000 - rock.vanishTimer) / 1000;
-                    ctx.globalAlpha = 1 - progress;
-                    ctx.scale(1 + progress * 2, 1 + progress * 2);
+                    ctx.globalAlpha = 1 - progress; ctx.scale(1 + progress * 2, 1 + progress * 2);
                 }
-                
-                ctx.beginPath();
-                ctx.arc(0, 0, rock.radius, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-                ctx.fill();
-                
+                ctx.beginPath(); ctx.arc(0, 0, rock.radius, 0, Math.PI * 2); ctx.fillStyle = 'rgba(255, 255, 255, 0.8)'; ctx.fill();
                 ctx.restore();
             });
         }
         
-        // メインゲームループ
         function animate(timestamp) {
             if (gameState === GAME_STATE.PLAYING) {
-                if (lastTime === 0) {
-                    lastTime = timestamp;
-                }
-                
+                if (lastTime === 0) lastTime = timestamp;
                 deltaTime = timestamp - lastTime;
                 lastTime = timestamp;
-                
                 update();
             }
-            
             draw();
-            
             requestAnimationFrame(animate);
         }
 
-        // 更新処理
         function update() {
+            totalElapsedTime += deltaTime;
             score += 10 * markers.length * (deltaTime / 1000);
-            
             updatePlayer();
-            
-            markers.forEach(marker => {
-                marker.remainingTime -= deltaTime;
-            });
+            markers.forEach(marker => marker.remainingTime -= deltaTime);
             markers = markers.filter(marker => marker.remainingTime > 0);
-            
             if (performance.now() - lastRockSpawnTime > currentDifficulty.rockSpawnRate) {
                 spawnRock();
                 lastRockSpawnTime = performance.now();
             }
-
+            if (performance.now() - lastPowerSpotSpawnTime > 45000) {
+                spawnPowerSpot();
+                lastPowerSpotSpawnTime = performance.now();
+            }
             updateRocks();
-            
+            updatePowerSpots();
             if (!player.isInvincible) {
                 rocks.forEach(rock => {
                     if (checkCollision(player, rock)) {
                         lives--;
                         playSE(220, 200, 'sawtooth');
-                        if (lives <= 0) {
-                            gameOver();
-                        } else {
-                            player.isInvincible = true;
-                            player.invincibleTimer = 2000;
-                        }
+                        if (lives <= 0) gameOver();
+                        else { player.isInvincible = true; player.invincibleTimer = 2000; }
                     }
                 });
             } else {
                 player.invincibleTimer -= deltaTime;
-                if (player.invincibleTimer <= 0) {
-                    player.isInvincible = false;
-                }
+                if (player.invincibleTimer <= 0) player.isInvincible = false;
             }
-            
             updateSkills();
-            
             updateUI();
         }
+
+        function spawnPowerSpot() {
+            if (powerSpots.length > 0) return;
+            const types = ['red', 'yellow', 'green'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            const colorMap = {
+                red: 'rgba(255, 64, 64, 0.8)', yellow: 'rgba(255, 248, 152, 0.8)', green: 'rgba(64, 255, 64, 0.8)'
+            };
+            const padding = 50;
+            const x = Math.random() * (canvas.width - padding * 2) + padding;
+            const y = Math.random() * (canvas.height - padding * 2) + padding;
+            powerSpots.push({ x, y, radius: player.radius * 2, type, color: colorMap[type], remainingTime: 8000 });
+        }
+
+        function updatePowerSpots() {
+            const remaining = [];
+            powerSpots.forEach(ps => {
+                ps.remainingTime -= deltaTime;
+                if (checkCollision(player, ps)) {
+                    playSE(550, 150, 'triangle');
+                    activatePowerSpotEffect(ps);
+                } else if (ps.remainingTime > 0) {
+                    remaining.push(ps);
+                }
+            });
+            powerSpots = remaining;
+        }
+
+        function activatePowerSpotEffect(powerSpot) {
+            switch (powerSpot.type) {
+                case 'red': rocks = []; break;
+                case 'yellow': score = Math.floor(score * 1.3); break;
+                case 'green': if (lives < 3) lives++; break;
+            }
+        }
+
+        function drawPowerSpots() {
+            powerSpots.forEach(ps => {
+                ctx.save();
+                const alpha = (ps.remainingTime < 2000 && Math.floor(performance.now() / 150) % 2 === 0) ? 0.5 : 1.0;
+                ctx.globalAlpha = alpha;
+                ctx.beginPath();
+                ctx.arc(ps.x, ps.y, ps.radius, 0, Math.PI * 2);
+                ctx.fillStyle = ps.color;
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(ps.x, ps.y, ps.radius * 1.2, 0, Math.PI * 2);
+                ctx.strokeStyle = ps.color;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.restore();
+            });
+        }
         
-        // 時間表示を整形
         function formatTime(seconds) {
             const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
             const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
@@ -1543,7 +1251,6 @@
             return `${h}:${m}:${s}`;
         }
 
-        // ハイスコアの保存
         function saveHighScores() {
             highScores.push(Math.floor(score));
             highScores.sort((a, b) => b - a);
@@ -1551,21 +1258,12 @@
             localStorage.setItem('highScores', JSON.stringify(highScores));
         }
 
-        // ハイスコアの読み込み
         function loadHighScores() {
             const savedScores = localStorage.getItem('highScores');
-            if (savedScores) {
-                highScores = JSON.parse(savedScores);
-            } else {
-                highScores = [0, 0, 0];
-            }
-            
+            if (savedScores) highScores = JSON.parse(savedScores);
+            else highScores = [0, 0, 0];
             highScoresList.forEach((el, index) => {
-                if (highScores[index]) {
-                    el.textContent = `${index + 1}. ${highScores[index]}`;
-                } else {
-                    el.textContent = `${index + 1}. ---`;
-                }
+                el.textContent = highScores[index] ? `${index + 1}. ${highScores[index]}` : `${index + 1}. ---`;
             });
         }
         
