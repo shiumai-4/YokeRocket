@@ -62,8 +62,12 @@
             justify-content: space-between;
         }
 
-        .top-ui, .bottom-ui, .left-ui, .right-ui {
+        .ui-element, .skill-button {
             pointer-events: none;
+        }
+        .ui-container.is-active .ui-element,
+        .ui-container.is-active .skill-button {
+            pointer-events: auto;
         }
 
         .top-ui {
@@ -112,7 +116,6 @@
             gap: 0.5rem;
             font-size: 1.2rem;
             transition: opacity 0.5s ease-in-out;
-            pointer-events: auto;
         }
         #pause-button {
             background-color: rgba(216, 216, 216, 0.5);
@@ -147,7 +150,6 @@
             overflow: hidden;
             transition: transform 0.1s ease-in-out;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-            pointer-events: auto;
         }
         
         .skill-button:active {
@@ -481,6 +483,100 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             text-align: center;
         }
+
+        /* ▼▼▼▼▼ ここからレスポンシブ対応の修正 ▼▼▼▼▼ */
+
+        /* ===== スマートフォン共通のスタイル ===== */
+        @media (max-width: 768px) {
+            /* --- タイトル画面 --- */
+            #game-title {
+                font-size: 2.2rem; /* タイトルフォントを約1/3に変更 */
+            }
+
+            #title-screen {
+                justify-content: flex-start; /* 上寄せに */
+                padding-top: 10%; /* 上部の余白を確保 */
+                gap: 1rem; /* 各要素の隙間を調整 */
+            }
+
+            #player-icon-title {
+                font-size: 6rem; /* ロケットアイコンも少し小さく */
+            }
+
+            #high-scores {
+                bottom: 20%; /* 画面下端に合わせる */
+                width: 40%;
+                padding: 0.5rem;
+            }
+
+            #high-scores h3 {
+                font-size: 1rem; /* ハイスコア見出しフォントを約2/3に */
+            }
+
+            .high-score-item {
+                font-size: 0.9rem; /* ハイスコア項目フォントを約2/3に */
+                min-width: auto;
+            }
+
+            /* --- ゲーム中 --- */
+            .ui-element.score {
+                font-size: 1.5rem; /* スコアフォントを半分に */
+            }
+        }
+
+        /* ===== スマートフォン横持ち画面のスタイル ===== */
+        /* iPhone SE/Pro Maxなどの横画面を想定 */
+        @media (max-height: 500px) and (orientation: landscape) {
+            
+            /* --- タイトル画面 --- */
+            #high-scores {
+                width: 40%;
+                max-width: 200px;
+                left: 10rem; /* 左下に表示 */
+                bottom: 1rem;
+                border-radius: var(--border-radius);
+            }
+            
+            /* --- ゲームオーバーモーダル --- */
+            #game-over-modal.modal-content {
+                max-height: 95vh; /* 最大高さを画面の高さに合わせる */
+                overflow-y: auto; /* コンテンツがはみ出た場合にスクロール */
+                padding: 0.5rem 1rem;
+            }
+
+            #game-over-modal h2 {
+                font-size: 1.25rem; /* テキストフォントを1/2に */
+                margin-top: 2px; /* 上の余白を2pxに */
+                margin-bottom: 5px; /* 表示物間のgapを5pxに(マージンで調整) */
+            }
+
+            #game-over-modal p {
+                font-size: 1rem; /* 経過時間・スコアフォントを2/3に */
+                margin: 5px 0; /* 表示物間のgapを5pxに(マージンで調整) */
+            }
+
+            #game-over-modal .tips-text,
+            #game-over-modal .skill-usage-container,
+            #game-over-modal .modal-buttons {
+                margin-top: 5px; /* 表示物間のgapを5pxに(マージンで調整) */
+            }
+             #game-over-modal .modal-buttons {
+                gap: 5px;
+             }
+
+
+            /* --- 設定モーダル・ポーズモーダル --- */
+            #settings-modal .modal-title,
+            #pause-modal .modal-title {
+                font-size: 1rem; /* 見出しフォントを1/2に */
+            }
+            #settings-modal .toggle-switch-container,
+            #pause-modal .toggle-switch-container {
+                 margin: 0.5rem 0;
+            }
+        }
+        /* ▲▲▲▲▲ ここまでレスポンシブ対応の修正 ▲▲▲▲▲ */
+
     </style>
 </head>
 <body>
@@ -612,7 +708,6 @@
         const closeSettingsButton = document.getElementById('close-settings-button');
         const pauseButton = document.getElementById('pause-button');
         const pauseModalOverlay = document.getElementById('pause-modal-overlay');
-        // resumeButtonとgameEndButtonは動的に生成されるため、ここでは取得しない
         const gameOverModalOverlay = document.getElementById('game-over-modal-overlay');
         const gameOverReturnButton = document.getElementById('game-over-return-button');
         const seToggle = document.getElementById('se-toggle');
@@ -630,16 +725,8 @@
         const skillBoostBtn = document.getElementById('skill-boost');
         const skillBombBtn = document.getElementById('skill-bomb');
 
-        // ゲーム状態の定数
-        const GAME_STATE = {
-            TITLE: 'title',
-            PLAYING: 'playing',
-            PAUSED: 'paused',
-            GAME_OVER: 'gameOver'
-        };
-        
+        const GAME_STATE = { TITLE: 'title', PLAYING: 'playing', PAUSED: 'paused', GAME_OVER: 'gameOver' };
         const initialPlayerRadius = 10;
-
         const gameTips = [
             "画面をタッチまたはクリックすると、マーカーを設置できます。", "マーカーは3秒で自動的に消滅します。", "ロケットは、マーカーを結んだ中心点に移動します。",
             "画面の横幅が広いほど、ロケットやシャボンは速くなります。", "スキルを使うと、スコアが増えます。", "SpeedBoost：マーカーを２つ以上設置するとチャージ開始します。",
@@ -647,64 +734,27 @@
             "PCなら、ウィンドウのアスペクト比を変えてみるとゲームの感触が変わります。", "シャボンは、たまに曲がったりします。", "マーカーは3つまで設置できます。設置するほどスコアが伸びます。",
             "マーカーが多いほど、強力なスキルをチャージできます。", "SpeedBoost：一定時間ロケットが加速します。", "AllEraser：設置したマーカーを全て消去します。",
             "DokkanBomb：画面内のシャボンを全て消去します。", "長時間プレイすると、より多くのシャボンが出現します。", "5分経過するごとに残機が1つ回復します。", "PCではA, S, Dキーでスキルを発動できます。",
-            "45秒に一度、ステージにパワースポットが出現します。", "赤いパワースポットはシャボンを全消去！", "黄色いパワースポットはスコアを1.3倍！", "緑のパワースポットは残機が1回復！"
+            "45秒に一度、ステージにパワースポットが出現します。", "青いパワースポットはシャボンを全消去！", "黄色いパワースポットはスコアを1.3倍！", "緑のパワースポットは残機が1回復！"
         ];
 
-        // ゲーム変数の初期化
         let gameState = GAME_STATE.TITLE;
-        let lastTime = 0;
-        let deltaTime = 0;
-        let totalElapsedTime = 0;
-        let scaleFactor;
-        
-        let player = {
-            x: 0, y: 0, radius: initialPlayerRadius, speed: 0,
-            isInvincible: false, invincibleTimer: 0, boostTimer: 0,
-            isBoosting: false, rotation: 0
-        };
-
-        let markers = [];
-        let rocks = [];
-        let powerSpots = [];
-        let highScores = [];
-        let score = 0;
-        let lives = 3;
-        let gameStartTime = 0;
-        let lifeRecoveryTime = 0;
-        let lastRockSpawnTime = 0;
-        let lastPowerSpotSpawnTime = 0;
-        
+        let lastTime = 0, deltaTime = 0, totalElapsedTime = 0, scaleFactor;
+        let player = { x: 0, y: 0, radius: initialPlayerRadius, speed: 0, isInvincible: false, invincibleTimer: 0, boostTimer: 0, isBoosting: false, rotation: 0 };
+        let markers = [], rocks = [], powerSpots = [], highScores = [];
+        let score = 0, lives = 3;
+        let gameStartTime = 0, lifeRecoveryTime = 0, lastRockSpawnTime = 0, lastPowerSpotSpawnTime = 0;
         const skillData = {
             eraser: { cost: 100, currentCost: 100, charge: 0, chargeCondition: 1, useCount: 0 },
             boost: { cost: 130, currentCost: 130, charge: 0, chargeCondition: 2, useCount: 0 },
             bomb: { cost: 150, currentCost: 150, charge: 0, chargeCondition: 3, useCount: 0 }
         };
-
-        let audioContext;
-        let isSEEnabled = true;
-        let isBGMEnabled = true;
-        let bgmSource;
-        const bgmSound = new Audio();
-
+        let audioContext, isSEEnabled = true, isBGMEnabled = true, bgmSource;
         const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--secondary-color').trim();
-
-        function showMessageBox(text, callback = null) {
-            const overlay = document.getElementById('message-box-overlay');
-            const messageText = document.getElementById('message-box-text');
-            const okButton = document.getElementById('message-box-ok');
-            messageText.textContent = text;
-            overlay.style.display = 'flex';
-            okButton.onclick = () => {
-                overlay.style.display = 'none';
-                if (callback) callback();
-            };
-        }
 
         function playSE(frequency, duration, type = 'sine') {
             if (!isSEEnabled) return;
             if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
+            const oscillator = audioContext.createOscillator(), gainNode = audioContext.createGain();
             oscillator.type = type;
             oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
             gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
@@ -722,6 +772,61 @@
             min10: { rockSpawnRate: 750, rockChances: { size: { normal: 50, big: 30, superBig: 20 }, speed: { normal: 20, slow: 5, fast: 50, verySlow: 25 }, moveType: { normal: 60, chase: 20, superChase: 10, lCurve: 5, rCurve: 5 }}}
         };
         let currentDifficulty = difficultySettings.initial;
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            scaleFactor = Math.min(canvas.width, canvas.height) / 800;
+            player.speed = (canvas.width / 6) / 1000;
+            player.x = canvas.width / 2;
+            player.y = canvas.height / 2;
+        }
+
+        const titleScreenMasterClickHandler = (event) => {
+            if (event.target.closest('#settings-button-title')) {
+                showSettingsModal();
+            } else {
+                startGame();
+            }
+        };
+
+        function init() {
+            resizeCanvas();
+            loadHighScores();
+            
+            window.addEventListener('resize', resizeCanvas);
+            titleScreen.addEventListener('click', titleScreenMasterClickHandler);
+
+            pauseButton.addEventListener('click', showPauseModal);
+            closeSettingsButton.addEventListener('click', closeSettingsModal);
+            gameOverReturnButton.addEventListener('click', showTitleScreen);
+            
+            seToggle.addEventListener('change', () => { isSEEnabled = seToggle.checked; playSE(440, 100, 'square'); });
+            bgmToggle.addEventListener('change', () => {
+                isBGMEnabled = bgmToggle.checked;
+                if (isBGMEnabled) {
+                    if (bgmSource) bgmSource.start();
+                    else createBGM();
+                } else {
+                    if (bgmSource) bgmSource.stop();
+                }
+            });
+
+            skillEraserBtn.addEventListener('click', () => useSkill('eraser'));
+            skillBoostBtn.addEventListener('click', () => useSkill('boost'));
+            skillBombBtn.addEventListener('click', () => useSkill('bomb'));
+            
+            window.addEventListener('keydown', (event) => {
+                if (gameState !== GAME_STATE.PLAYING) return;
+                switch (event.key.toLowerCase()) {
+                    case 'a': if (!skillEraserBtn.disabled) useSkill('eraser'); break;
+                    case 's': if (!skillBoostBtn.disabled) useSkill('boost'); break;
+                    case 'd': if (!skillBombBtn.disabled) useSkill('bomb'); break;
+                }
+            });
+            
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+        }
 
         function createBGM() {
             if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -735,59 +840,6 @@
             bgmSource.loop = true;
             bgmSource.connect(audioContext.destination);
             if (isBGMEnabled) bgmSource.start();
-        }
-        
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            scaleFactor = Math.min(canvas.width, canvas.height) / 800;
-            player.speed = (canvas.width / 6) / 1000;
-            player.x = canvas.width / 2;
-            player.y = canvas.height / 2;
-        }
-        
-        // <<< 修正点2: タイトル画面のクリック処理を分離 >>>
-        const titleScreenClickHandler = (event) => {
-            // クリックされたのが設定ボタンやその中身(iタグ)でなければゲーム開始
-            if (event.target.closest('#settings-button-title')) {
-                return;
-            }
-            startGame();
-        };
-
-        function init() {
-            resizeCanvas();
-            loadHighScores();
-            createBGM();
-            window.addEventListener('resize', resizeCanvas);
-            
-            titleScreen.addEventListener('click', titleScreenClickHandler); // 修正
-
-            settingsButtonTitle.addEventListener('click', (event) => {
-                event.stopPropagation(); // 念のため残す
-                showSettingsModal();
-            });
-
-            pauseButton.addEventListener('click', showPauseModal);
-            closeSettingsButton.addEventListener('click', closeSettingsModal);
-            gameOverReturnButton.addEventListener('click', showTitleScreen);
-            seToggle.addEventListener('change', () => { isSEEnabled = seToggle.checked; playSE(440, 100, 'square'); });
-            bgmToggle.addEventListener('change', () => {
-                isBGMEnabled = bgmToggle.checked;
-                if (isBGMEnabled) { if (bgmSource) bgmSource.start(); } else { if (bgmSource) bgmSource.stop(); }
-            });
-            skillEraserBtn.addEventListener('click', () => useSkill('eraser'));
-            skillBoostBtn.addEventListener('click', () => useSkill('boost'));
-            skillBombBtn.addEventListener('click', () => useSkill('bomb'));
-            window.addEventListener('keydown', (event) => {
-                if (gameState !== GAME_STATE.PLAYING) return;
-                switch (event.key.toLowerCase()) {
-                    case 'a': if (!skillEraserBtn.disabled) useSkill('eraser'); break;
-                    case 's': if (!skillBoostBtn.disabled) useSkill('boost'); break;
-                    case 'd': if (!skillBombBtn.disabled) useSkill('bomb'); break;
-                }
-            });
-            document.addEventListener('visibilitychange', handleVisibilityChange);
         }
 
         function handleVisibilityChange() {
@@ -816,8 +868,7 @@
                     x = event.clientX - rect.left;
                     y = event.clientY - rect.top;
                 }
-                const target = event.target;
-                if (target.id === 'gameCanvas' || target.closest('#game-ui') === null) {
+                if (event.target.id === 'gameCanvas' || event.target.closest('#game-ui') === null) {
                     if (markers.length < 3) {
                         markers.push({ x, y, remainingTime: 3000 });
                         playSE(660, 50, 'triangle');
@@ -828,7 +879,15 @@
         }
         
         function startGame() {
-            titleScreen.removeEventListener('click', titleScreenClickHandler); // 修正
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            if (!bgmSource && isBGMEnabled) {
+                createBGM();
+            }
+
+            titleScreen.removeEventListener('click', titleScreenMasterClickHandler);
+            
             canvas.addEventListener('mousedown', handleGameCanvasTap);
             canvas.addEventListener('touchstart', handleGameCanvasTap);
             
@@ -836,6 +895,7 @@
             setTimeout(() => {
                 titleScreen.style.display = 'none';
                 gameUI.style.opacity = '1';
+                gameUI.classList.add('is-active');
             }, 1000);
             
             gameState = GAME_STATE.PLAYING;
@@ -860,13 +920,9 @@
                     <div class="toggle-switch-container"><label>SE</label><label class="toggle-switch"><input type="checkbox" id="se-toggle-pause"><span class="slider"></span></label></div>
                     <div class="toggle-switch-container"><label>BGM</label><label class="toggle-switch"><input type="checkbox" id="bgm-toggle-pause"><span class="slider"></span></label></div>
                     <div class="modal-buttons"><button class="modal-button" id="resume-button-temp">再開</button><button class="modal-button" id="game-end-button-temp">ゲーム終了</button></div>`;
-                const seTogglePause = document.getElementById('se-toggle-pause');
-                const bgmTogglePause = document.getElementById('bgm-toggle-pause');
-                seTogglePause.checked = isSEEnabled;
-                bgmTogglePause.checked = isBGMEnabled;
-                seTogglePause.addEventListener('change', () => { 
-                    isSEEnabled = seTogglePause.checked; seToggle.checked = isSEEnabled; playSE(440, 100, 'square');
-                });
+                const seTogglePause = document.getElementById('se-toggle-pause'), bgmTogglePause = document.getElementById('bgm-toggle-pause');
+                seTogglePause.checked = isSEEnabled; bgmTogglePause.checked = isBGMEnabled;
+                seTogglePause.addEventListener('change', () => { isSEEnabled = seTogglePause.checked; seToggle.checked = isSEEnabled; playSE(440, 100, 'square'); });
                 bgmTogglePause.addEventListener('change', () => { 
                     isBGMEnabled = bgmTogglePause.checked; bgmToggle.checked = isBGMEnabled;
                     if (isBGMEnabled) { if (bgmSource) bgmSource.start(); } else { if (bgmSource) bgmSource.stop(); }
@@ -885,6 +941,9 @@
         }
 
         function showSettingsModal() {
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
             settingsModalOverlay.classList.add('visible');
             playSE(440, 100, 'square');
         }
@@ -920,8 +979,7 @@
                         if (skillData.eraser.useCount > 0) gameOverSkillUsageDisplay.innerHTML += `<div class="skill-usage-item"><i class="fas fa-eraser skill-usage-icon" style="color:${secondaryColor};"></i><span>${skillData.eraser.useCount}</span></div>`;
                         if (skillData.boost.useCount > 0) gameOverSkillUsageDisplay.innerHTML += `<div class="skill-usage-item"><i class="fas fa-fire-extinguisher skill-usage-icon" style="color:${secondaryColor};"></i><span>${skillData.boost.useCount}</span></div>`;
                         if (skillData.bomb.useCount > 0) gameOverSkillUsageDisplay.innerHTML += `<div class="skill-usage-item"><i class="fas fa-bomb skill-usage-icon" style="color:${secondaryColor};"></i><span>${skillData.bomb.useCount}</span></div>`;
-                        saveHighScores();
-                        loadHighScores();
+                        saveHighScores(); loadHighScores();
                     }, 500);
                 }
             }
@@ -931,23 +989,23 @@
 
         function showTitleScreen() {
             score = 0; lives = 3; rocks = []; markers = []; powerSpots = [];
-            skillData.eraser.charge = 0; skillData.eraser.currentCost = skillData.eraser.cost; skillData.eraser.useCount = 0;
-            skillData.boost.charge = 0; skillData.boost.currentCost = skillData.boost.cost; skillData.boost.useCount = 0;
-            skillData.bomb.charge = 0; skillData.bomb.currentCost = skillData.bomb.cost; skillData.bomb.useCount = 0;
-            player.x = canvas.width / 2; player.y = canvas.height / 2;
-            player.isInvincible = false; player.isBoosting = false; player.boostTimer = 0;
-            player.radius = initialPlayerRadius;
+            Object.values(skillData).forEach(skill => { skill.charge = 0; skill.currentCost = skill.cost; skill.useCount = 0; });
+            player = { ...player, x: canvas.width / 2, y: canvas.height / 2, isInvincible: false, isBoosting: false, boostTimer: 0, radius: initialPlayerRadius };
+            
             gameState = GAME_STATE.TITLE;
             titleScreen.classList.remove('fade-out');
             titleScreen.style.display = 'flex';
+            
             canvas.removeEventListener('mousedown', handleGameCanvasTap);
             canvas.removeEventListener('touchstart', handleGameCanvasTap);
-            titleScreen.addEventListener('click', titleScreenClickHandler); // 修正
-            settingsModalOverlay.classList.remove('visible');
-            pauseModalOverlay.classList.remove('visible');
-            gameOverModalOverlay.classList.remove('visible');
+            
+            titleScreen.addEventListener('click', titleScreenMasterClickHandler);
+            
+            [settingsModalOverlay, pauseModalOverlay, gameOverModalOverlay].forEach(el => el.classList.remove('visible'));
+            
             gameUI.style.opacity = '0';
-            gameUI.style.pointerEvents = 'none';
+            gameUI.classList.remove('is-active');
+            
             gameOverTipsDisplay.textContent = "";
         }
 
@@ -963,8 +1021,7 @@
             if (target) {
                 const dx = target.x - player.x, dy = target.y - player.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-                let currentSpeed = player.speed;
-                if (player.isBoosting) currentSpeed *= 1.5;
+                let currentSpeed = player.speed * (player.isBoosting ? 1.5 : 1);
                 if (distance > 4) {
                     const ratio = (currentSpeed * deltaTime) / distance;
                     player.x += dx * ratio; player.y += dy * ratio;
@@ -975,6 +1032,7 @@
             }
         }
         
+        // ▼▼▼▼▼ 修正箇所1: spawnRock関数 ▼▼▼▼▼
         function spawnRock() {
             const { size, speed, moveType } = getRandomRockChances(currentDifficulty.rockChances);
             let rock = {
@@ -983,23 +1041,39 @@
                 rotation: Math.random() * Math.PI * 2, rotationSpeed: (Math.random() - 0.5) * 0.05,
                 angle: 0, lastCorrection: performance.now()
             };
-            const edge = Math.floor(Math.random() * 4), spawnOffset = 50;
-            const bufferX = canvas.width + spawnOffset * 2, bufferY = canvas.height + spawnOffset * 2;
+
+            // 固定のオフセット値(50)の代わりに、生成される岩の半径をオフセットとして使用
+            const spawnOffset = rock.radius; 
+            const edge = Math.floor(Math.random() * 4);
+            const bufferX = canvas.width + spawnOffset * 2;
+            const bufferY = canvas.height + spawnOffset * 2;
+
             switch (edge) {
-                case 0: rock.x = Math.random() * bufferX - spawnOffset; rock.y = -spawnOffset; break;
-                case 1: rock.x = bufferX - spawnOffset; rock.y = Math.random() * bufferY - spawnOffset; break;
-                case 2: rock.x = Math.random() * bufferX - spawnOffset; rock.y = bufferY - spawnOffset; break;
-                case 3: rock.x = -spawnOffset; rock.y = Math.random() * bufferY - spawnOffset; break;
+                case 0: // 上から出現
+                    rock.x = Math.random() * bufferX - spawnOffset; 
+                    rock.y = -spawnOffset; 
+                    break;
+                case 1: // 右から出現
+                    rock.x = canvas.width + spawnOffset;
+                    rock.y = Math.random() * bufferY - spawnOffset; 
+                    break;
+                case 2: // 下から出現
+                    rock.x = Math.random() * bufferX - spawnOffset; 
+                    rock.y = canvas.height + spawnOffset; 
+                    break;
+                case 3: // 左から出現
+                    rock.x = -spawnOffset; 
+                    rock.y = Math.random() * bufferY - spawnOffset;
+                    break;
             }
+
             let targetX, targetY;
-            if (rock.moveType === 'chase' || rock.moveType === 'superChase') {
-                targetX = player.x; targetY = player.y;
-            } else {
-                targetX = Math.random() * canvas.width; targetY = Math.random() * canvas.height;
-            }
+            if (['chase', 'superChase'].includes(rock.moveType)) { targetX = player.x; targetY = player.y; }
+            else { targetX = Math.random() * canvas.width; targetY = Math.random() * canvas.height; }
             rock.angle = Math.atan2(targetY - rock.y, targetX - rock.x);
             rocks.push(rock);
         }
+        // ▲▲▲▲▲ 修正箇所1: ここまで ▲▲▲▲▲
 
         function getRandomRockChances(chances) {
             const randomPick = (options) => {
@@ -1018,6 +1092,7 @@
             return { size: sizeMap[sizeType], speed: speedMap[speedType], moveType: moveTypeMap[moveType] };
         }
         
+        // ▼▼▼▼▼ 修正箇所2: updateRocks関数 ▼▼▼▼▼
         function updateRocks() {
             const now = performance.now();
             rocks = rocks.filter(rock => {
@@ -1034,14 +1109,15 @@
                 else if (rock.moveType === 'superChase') angleCorrection(4 * Math.PI / 180, 350);
                 else if (rock.moveType === 'lCurve' && now - rock.lastCorrection > 700) { rock.angle -= 15 * Math.PI / 180; rock.lastCorrection = now; }
                 else if (rock.moveType === 'rCurve' && now - rock.lastCorrection > 700) { rock.angle += 15 * Math.PI / 180; rock.lastCorrection = now; }
-                
                 rock.x += Math.cos(rock.angle) * rock.speed * deltaTime;
                 rock.y += Math.sin(rock.angle) * rock.speed * deltaTime;
                 rock.rotation += rock.rotationSpeed;
-                
-                return !(rock.x < -100 || rock.x > canvas.width + 100 || rock.y < -100 || rock.y > canvas.height + 100);
+
+                // 消滅判定を、固定値(-100, +100)ではなく、岩の半径を基に行う
+                return !(rock.x < -rock.radius || rock.x > canvas.width + rock.radius || rock.y < -rock.radius || rock.y > canvas.height + rock.radius);
             });
         }
+        // ▲▲▲▲▲ 修正箇所2: ここまで ▲▲▲▲▲
         
         function checkCollision(obj1, obj2) {
             const dx = obj1.x - obj2.x, dy = obj1.y - obj2.y;
@@ -1079,15 +1155,12 @@
             }
         }
         
-        function getSkillBonus(skillName) {
-            return { eraser: 56, boost: 555, bomb: 1000 }[skillName] || 0;
-        }
+        function getSkillBonus(skillName) { return { eraser: 56, boost: 555, bomb: 1000 }[skillName] || 0; }
 
         function updateUI() {
             currentScoreDisplay.textContent = Math.floor(score).toString();
             gameTimeDisplay.textContent = formatTime(totalElapsedTime / 1000);
-            livesDisplay.innerHTML = '';
-            for (let i = 0; i < lives; i++) livesDisplay.innerHTML += `<i class="fas fa-rocket life-icon"></i>`;
+            livesDisplay.innerHTML = Array(lives).fill('<i class="fas fa-rocket life-icon"></i>').join('');
             const elapsed = totalElapsedTime / 1000;
             if (elapsed >= 360) currentDifficulty = difficultySettings.min10;
             else if (elapsed >= 180) currentDifficulty = difficultySettings.min5;
@@ -1100,21 +1173,15 @@
         
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawRocks();
-            drawMarkers();
-            drawPowerSpots();
-            drawPlayer();
+            drawRocks(); drawMarkers(); drawPowerSpots(); drawPlayer();
         }
         
         function drawPlayer() {
             ctx.save();
             ctx.translate(player.x, player.y);
             ctx.rotate(player.rotation + Math.PI / 2);
-            if (player.isInvincible && Math.floor(performance.now() / 100) % 2 === 0) {
-                ctx.restore(); return;
-            }
-            const playerColor = player.isBoosting ? '#42a5f5' : secondaryColor;
-            ctx.fillStyle = playerColor;
+            if (player.isInvincible && Math.floor(performance.now() / 100) % 2 === 0) { ctx.restore(); return; }
+            ctx.fillStyle = player.isBoosting ? '#42a5f5' : secondaryColor;
             ctx.beginPath();
             ctx.moveTo(0, -player.radius * 2);
             ctx.lineTo(-player.radius, player.radius * 2);
@@ -1193,34 +1260,27 @@
 
         function spawnPowerSpot() {
             if (powerSpots.length > 0) return;
-            const types = ['red', 'yellow', 'green'];
-            const type = types[Math.floor(Math.random() * types.length)];
-            const colorMap = {
-                red: 'rgba(255, 64, 64, 0.8)', yellow: 'rgba(255, 248, 152, 0.8)', green: 'rgba(64, 255, 64, 0.8)'
-            };
-            const padding = 50;
-            const x = Math.random() * (canvas.width - padding * 2) + padding;
-            const y = Math.random() * (canvas.height - padding * 2) + padding;
+            const types = ['blue', 'yellow', 'green'], type = types[Math.floor(Math.random() * types.length)];
+            const colorMap = { blue: 'rgba(64, 128, 255, 0.8)', yellow: 'rgba(255, 248, 152, 0.8)', green: 'rgba(64, 255, 64, 0.8)' };
+            const padding = 50, x = Math.random() * (canvas.width - padding * 2) + padding, y = Math.random() * (canvas.height - padding * 2) + padding;
             powerSpots.push({ x, y, radius: player.radius * 2, type, color: colorMap[type], remainingTime: 8000 });
         }
 
         function updatePowerSpots() {
-            const remaining = [];
-            powerSpots.forEach(ps => {
+            powerSpots = powerSpots.filter(ps => {
                 ps.remainingTime -= deltaTime;
                 if (checkCollision(player, ps)) {
                     playSE(550, 150, 'triangle');
                     activatePowerSpotEffect(ps);
-                } else if (ps.remainingTime > 0) {
-                    remaining.push(ps);
+                    return false;
                 }
+                return ps.remainingTime > 0;
             });
-            powerSpots = remaining;
         }
 
         function activatePowerSpotEffect(powerSpot) {
             switch (powerSpot.type) {
-                case 'red': rocks = []; break;
+                case 'blue': rocks = []; break;
                 case 'yellow': score = Math.floor(score * 1.3); break;
                 case 'green': if (lives < 3) lives++; break;
             }
@@ -1229,17 +1289,9 @@
         function drawPowerSpots() {
             powerSpots.forEach(ps => {
                 ctx.save();
-                const alpha = (ps.remainingTime < 2000 && Math.floor(performance.now() / 150) % 2 === 0) ? 0.5 : 1.0;
-                ctx.globalAlpha = alpha;
-                ctx.beginPath();
-                ctx.arc(ps.x, ps.y, ps.radius, 0, Math.PI * 2);
-                ctx.fillStyle = ps.color;
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(ps.x, ps.y, ps.radius * 1.2, 0, Math.PI * 2);
-                ctx.strokeStyle = ps.color;
-                ctx.lineWidth = 2;
-                ctx.stroke();
+                ctx.globalAlpha = (ps.remainingTime < 2000 && Math.floor(performance.now() / 150) % 2 === 0) ? 0.5 : 1.0;
+                ctx.beginPath(); ctx.arc(ps.x, ps.y, ps.radius, 0, Math.PI * 2); ctx.fillStyle = ps.color; ctx.fill();
+                ctx.beginPath(); ctx.arc(ps.x, ps.y, ps.radius * 1.2, 0, Math.PI * 2); ctx.strokeStyle = ps.color; ctx.lineWidth = 2; ctx.stroke();
                 ctx.restore();
             });
         }
