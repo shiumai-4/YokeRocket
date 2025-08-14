@@ -28,6 +28,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            height: 100dvh;
             margin: 0;
             overflow: hidden;
             user-select: none;
@@ -508,6 +509,9 @@
                 width: 40%;
                 padding: 0.5rem;
             }
+            #settings-button-title {
+                bottom: 10%;
+            }
 
             #high-scores h3 {
                 font-size: 1rem; /* ハイスコア見出しフォントを約2/3に */
@@ -515,7 +519,7 @@
 
             .high-score-item {
                 font-size: 0.9rem; /* ハイスコア項目フォントを約2/3に */
-                min-width: auto;
+                min-width: 40%;
             }
 
             /* --- ゲーム中 --- */
@@ -744,9 +748,9 @@
         let score = 0, lives = 3;
         let gameStartTime = 0, lifeRecoveryTime = 0, lastRockSpawnTime = 0, lastPowerSpotSpawnTime = 0;
         const skillData = {
-            eraser: { cost: 100, currentCost: 100, charge: 0, chargeCondition: 1, useCount: 0 },
-            boost: { cost: 130, currentCost: 130, charge: 0, chargeCondition: 2, useCount: 0 },
-            bomb: { cost: 150, currentCost: 150, charge: 0, chargeCondition: 3, useCount: 0 }
+            eraser: { cost: 100, currentCost: 70, charge: 0, chargeCondition: 1, useCount: 0 },
+            boost: { cost: 130, currentCost: 100, charge: 0, chargeCondition: 2, useCount: 0 },
+            bomb: { cost: 150, currentCost: 130, charge: 0, chargeCondition: 3, useCount: 0 }
         };
         let audioContext, isSEEnabled = true, isBGMEnabled = true, bgmSource;
         const secondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--secondary-color').trim();
@@ -766,17 +770,17 @@
         }
 
         const difficultySettings = {
-            initial: { rockSpawnRate: 2000, rockChances: { size: { normal: 80, big: 15, superBig: 5 }, speed: { normal: 50, slow: 20, fast: 20, verySlow: 10 }, moveType: { normal: 90, chase: 5, superChase: 1, lCurve: 2, rCurve: 2 }}},
-            min1: { rockSpawnRate: 1500, rockChances: { size: { normal: 70, big: 20, superBig: 10 }, speed: { normal: 40, slow: 15, fast: 30, verySlow: 15 }, moveType: { normal: 80, chase: 10, superChase: 2, lCurve: 4, rCurve: 4 }}},
-            min5: { rockSpawnRate: 1000, rockChances: { size: { normal: 60, big: 25, superBig: 15 }, speed: { normal: 30, slow: 10, fast: 40, verySlow: 20 }, moveType: { normal: 70, chase: 15, superChase: 5, lCurve: 5, rCurve: 5 }}},
-            min10: { rockSpawnRate: 750, rockChances: { size: { normal: 50, big: 30, superBig: 20 }, speed: { normal: 20, slow: 5, fast: 50, verySlow: 25 }, moveType: { normal: 60, chase: 20, superChase: 10, lCurve: 5, rCurve: 5 }}}
+            initial: { rockSpawnRate: 2000, rockChances: { size: { normal: 80, big: 15, superBig: 5 }, speed: { normal: 50, slow: 20, fast: 20, verySlow: 10 }, moveType: { normal: 78, chase: 5, superChase: 1, lCurve: 8, rCurve: 8 }}},
+            min1: { rockSpawnRate: 1500, rockChances: { size: { normal: 70, big: 20, superBig: 10 }, speed: { normal: 40, slow: 15, fast: 30, verySlow: 15 }, moveType: { normal: 62, chase: 8, superChase: 5, lCurve: 10, rCurve: 10 }}},
+            min5: { rockSpawnRate: 1000, rockChances: { size: { normal: 60, big: 25, superBig: 15 }, speed: { normal: 30, slow: 10, fast: 40, verySlow: 20 }, moveType: { normal: 62, chase: 8, superChase: 10, lCurve: 10, rCurve: 10 }}},
+            min10: { rockSpawnRate: 750, rockChances: { size: { normal: 50, big: 30, superBig: 20 }, speed: { normal: 20, slow: 5, fast: 50, verySlow: 25 }, moveType: { normal: 55, chase: 10, superChase: 10, lCurve: 15, rCurve: 15 }}}
         };
         let currentDifficulty = difficultySettings.initial;
         
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            scaleFactor = Math.min(canvas.width, canvas.height) / 800;
+            scaleFactor = Math.min(canvas.width, canvas.height) / 600;
             player.speed = (canvas.width / 6) / 1000;
             player.x = canvas.width / 2;
             player.y = canvas.height / 2;
